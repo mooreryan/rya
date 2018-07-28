@@ -11,6 +11,7 @@ module Rya
   module AbortIf
     # To include the methods
     extend Object::AbortIf
+    extend Object::AbortIf::Assert
 
     # To include the helper classes
     include Object::AbortIf
