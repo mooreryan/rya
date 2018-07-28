@@ -1,6 +1,8 @@
 # Rya
 
-Library with code I use a lot.
+[![Gem Version](https://badge.fury.io/rb/rya.svg)](https://badge.fury.io/rb/rya) [![Build Status](https://travis-ci.org/mooreryan/rya.svg?branch=master)](https://travis-ci.org/mooreryan/rya) [![Coverage Status](https://coveralls.io/repos/github/mooreryan/rya/badge.svg?branch=master)](https://coveralls.io/github/mooreryan/rya?branch=master)
+
+My sweet library :D
 
 ## Installation
 
