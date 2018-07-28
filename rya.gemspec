@@ -22,6 +22,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  # It's been tested with C.I. on 2.2 on up.
+  spec.required_ruby_version = "~> 2.2"
+
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "coveralls", "~> 0.8.22"
   spec.add_development_dependency "rake", "~> 10.0"
