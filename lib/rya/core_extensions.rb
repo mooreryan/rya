@@ -52,9 +52,9 @@ module Rya
         # Sometimes, exited? is not true and there will be no exit
         # status. Success should catch all failures.
         Rya::AbortIf.abort_unless exit_status.success?,
-                                  "Command failed with status " +
-                                      "'#{exit_status.to_s}' " +
-                                      "when running '#{a.inspect}', " +
+                                  "Command failed with status " \
+                                      "'#{exit_status.to_s}' " \
+                                      "when running '#{a.inspect}', " \
                                       "'#{b.inspect}'"
 
         exit_status
