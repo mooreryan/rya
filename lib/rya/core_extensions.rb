@@ -1,6 +1,23 @@
 module Rya
   # Contains extensions to core Ruby classes and modules.
+
   module CoreExtensions
+    module Array
+      # Scales with respect to the min and max of the data actually in the Array.
+      def scale new_min, new_max
+        old_min = self.min
+        old_max = self.max
+
+        self.scale_fixed old_min, old_max, new_min, new_max
+      end
+
+      # Scales with respect to a fixed old_min and old_max
+      def scale_fixed old_min, old_max, new_min, new_max
+        self.map do |elem|
+          Rya::ExtendedClasses::MATH.scale elem, old_min, old_max, new_min, new_max
+        end
+      end
+    end
 
     module Math
       def scale val, old_min, old_max, new_min, new_max
@@ -99,3 +116,11 @@ module Rya
     end
   end
 end
+
+module Rya
+  # Mainly for external use within the CoreExtensions module definitions
+  module ExtendedClasses
+    MATH = Class.new.extend(Rya::CoreExtensions::Math)
+  end
+end
+

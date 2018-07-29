@@ -1,5 +1,35 @@
 RSpec.describe Rya::CoreExtensions do
 
+  describe Rya::CoreExtensions::Array do
+    let(:ary) { Array.new.extend Rya::CoreExtensions::Array }
+
+    describe "#scale" do
+      it "scales arrays" do
+        ary << 0 << 75 << 50 << 25 << 100
+        expected = [100, 175, 150, 125, 200]
+
+        new_min = 100
+        new_max = 200
+
+        actual = ary.scale new_min, new_max
+
+        expect(actual).to eq expected
+      end
+
+      it "can scale from high to low as well" do
+        ary << 0 << 75 << 50 << 25 << 100
+        expected = [200, 125, 150, 175, 100]
+
+        new_min = 200
+        new_max = 100
+
+        actual = ary.scale new_min, new_max
+
+        expect(actual).to eq expected
+      end
+    end
+  end
+
   describe Rya::CoreExtensions::Math do
     let(:klass) { Class.new { extend Rya::CoreExtensions::Math } }
 
