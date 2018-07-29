@@ -1,5 +1,51 @@
 RSpec.describe Rya::CoreExtensions do
 
+  describe Rya::CoreExtensions::Math do
+    let(:klass) { Class.new { extend Rya::CoreExtensions::Math } }
+
+    describe "#scale" do
+      it "returns avg of new_min and new_max if old_min and old_max are equal" do
+        val     = 1
+        old_min = 1
+        old_max = 1
+        new_min = 10
+        new_max = 20
+
+        expected = 15
+        actual   = klass.scale val, old_min, old_max, new_min, new_max
+
+        expect(actual).to eq expected
+      end
+
+      it "scales the val" do
+        val     = 15
+        old_min = 10
+        old_max = 20
+        new_min = 100
+        new_max = 200
+
+        expected = 150
+        actual   = klass.scale val, old_min, old_max, new_min, new_max
+
+        expect(actual).to eq expected
+      end
+
+      it "can reverse scales as well" do
+        val     = 18
+        old_min = 10
+        old_max = 20
+        new_min = 200
+        new_max = 100
+
+        expected = 120
+        actual   = klass.scale val, old_min, old_max, new_min, new_max
+
+        expect(actual).to eq expected
+      end
+
+    end
+  end
+
   describe Rya::CoreExtensions::Time do
     let(:klass) { Class.new { extend Rya::CoreExtensions::Time } }
 
@@ -77,13 +123,13 @@ RSpec.describe Rya::CoreExtensions do
       it "logs the command being run" do
         expect do
           klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Running: echo/ ).to_stderr_from_any_process
+        end.to output(/Running: echo/).to_stderr_from_any_process
       end
 
       it "also logs the title" do
         expect do
           klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Apple pie finished in/ ).to_stderr_from_any_process
+        end.to output(/Apple pie finished in/).to_stderr_from_any_process
       end
     end
   end

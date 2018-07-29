@@ -2,6 +2,19 @@ module Rya
   # Contains extensions to core Ruby classes and modules.
   module CoreExtensions
 
+    module Math
+      def scale val, old_min, old_max, new_min, new_max
+        # This can happen if you use the mean across non-zero samples.
+        if old_max - old_min == 0
+          # TODO better default value than this?
+          (new_min + new_max) / 2;
+        else
+          ((((new_max - new_min) * (val - old_min)) / (old_max - old_min).to_f) + new_min)
+        end
+
+      end
+    end
+
     module Time
       # Nicely format date and time
       def date_and_time fmt = "%F %T.%L"

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rya (0.2.0)
+    rya (0.3.0)
       abort_if (~> 0.2.0)
       systemu (~> 2.6, >= 2.6.5)
 
