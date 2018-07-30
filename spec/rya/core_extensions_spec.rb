@@ -76,6 +76,96 @@ RSpec.describe Rya::CoreExtensions do
     end
   end
 
+  describe Rya::CoreExtensions::Process do
+    let(:klass) { Class.new { extend Rya::CoreExtensions::Process } }
+
+    describe "#run_it!" do
+      it "raises error with bad command" do
+        expect { klass.run_it! "rya___arstoien" }.to raise_error Rya::AbortIf::Exit
+      end
+
+      it "runs commands" do
+        expect { klass.run_it! "echo 'hi'" }.to output("hi\n").to_stdout
+      end
+    end
+
+    describe "#run_and_time_it!" do
+      let(:title) { "Apple pie" }
+
+      it "raises error with bad command" do
+        expect do
+          klass.run_and_time_it! title, "rya___arstoien"
+        end.to raise_error Rya::AbortIf::Exit
+      end
+
+      it "logs the command being run" do
+        expect do
+          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
+        end.to output(/Running: echo/).to_stderr_from_any_process
+      end
+
+      it "also logs the title" do
+        expect do
+          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
+        end.to output(/Apple pie finished in/).to_stderr_from_any_process
+      end
+    end
+  end
+
+  describe Rya::CoreExtensions::String do
+    let(:str) { String.new.extend Rya::CoreExtensions::String }
+
+    describe "#longest_common_substring" do
+      it "gives length of longest common substring" do
+        str << "apple"
+        other = "ppie"
+
+        expect(str.longest_common_substring other).to eq 2
+      end
+
+      it "test 2" do
+        str << "apple"
+        other = "aaaaaaaple"
+
+        expect(str.longest_common_substring other).to eq 3
+      end
+
+      it "test 3" do
+        str << "apple"
+        other = "zzzplezzzpleezzz"
+
+        expect(str.longest_common_substring other).to eq 3
+      end
+
+
+      it "gives zero when no common substring" do
+        str << "apple"
+        other = "foo"
+
+        expect(str.longest_common_substring other).to eq 0
+      end
+
+      it "gives zero when self is empty" do
+        other = "ryan"
+
+        expect(str.longest_common_substring other).to eq 0
+      end
+
+      it "gives zero when other is empty" do
+        str << "apple"
+        other = ""
+
+        expect(str.longest_common_substring other).to eq 0
+      end
+
+      it "gives zero when both are empty" do
+        other = ""
+
+        expect(str.longest_common_substring other).to eq 0
+      end
+    end
+  end
+
   describe Rya::CoreExtensions::Time do
     let(:klass) { Class.new { extend Rya::CoreExtensions::Time } }
 
@@ -128,39 +218,4 @@ RSpec.describe Rya::CoreExtensions do
     end
   end
 
-  describe Rya::CoreExtensions::Process do
-    let(:klass) { Class.new { extend Rya::CoreExtensions::Process } }
-
-    describe "#run_it!" do
-      it "raises error with bad command" do
-        expect { klass.run_it! "rya___arstoien" }.to raise_error Rya::AbortIf::Exit
-      end
-
-      it "runs commands" do
-        expect { klass.run_it! "echo 'hi'" }.to output("hi\n").to_stdout
-      end
-    end
-
-    describe "#run_and_time_it!" do
-      let(:title) { "Apple pie" }
-
-      it "raises error with bad command" do
-        expect do
-          klass.run_and_time_it! title, "rya___arstoien"
-        end.to raise_error Rya::AbortIf::Exit
-      end
-
-      it "logs the command being run" do
-        expect do
-          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Running: echo/).to_stderr_from_any_process
-      end
-
-      it "also logs the title" do
-        expect do
-          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Apple pie finished in/).to_stderr_from_any_process
-      end
-    end
-  end
 end

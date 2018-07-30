@@ -32,6 +32,50 @@ module Rya
       end
     end
 
+    module String
+
+      # Use dynamic programming to find the length of the longest common substring.
+      #
+      # @param other The other string to test against.
+      #
+      # @example
+      #   str = String.new("apple").extend Rya::CoreExtensions::String
+      #   other = "ppie"
+      #
+      #   str.longest_common_substring other #=> 2
+      #
+      # @note This is the algorithm from https://www.geeksforgeeks.org/longest-common-substring/
+      def longest_common_substring other
+        if self.empty? || other.empty?
+          return 0
+        end
+
+        self_len  = self.length
+        other_len = other.length
+
+        longest_common_suffix = Object::Array.new(self_len + 1) { Object::Array.new(other_len + 1, 0) }
+
+        len = 0
+
+        (self_len + 1).times do |i|
+          (other_len + 1).times do |j|
+            if i.zero? || j.zero? # this is for the dummy column
+              longest_common_suffix[i][j] = 0
+            elsif self[i - 1] == other[j - 1]
+              val = longest_common_suffix[i - 1][j - 1] + 1
+              longest_common_suffix[i][j] = val
+
+              len = [len, val].max
+            else
+              longest_common_suffix[i][j] = 0
+            end
+          end
+        end
+
+        len
+      end
+    end
+
     module Time
       # Nicely format date and time
       def date_and_time fmt = "%F %T.%L"
@@ -114,13 +158,15 @@ module Rya
         end
       end
     end
+
   end
 end
 
 module Rya
-  # Mainly for external use within the CoreExtensions module definitions
+  # Mainly for use within the CoreExtensions module definitions
   module ExtendedClasses
-    MATH = Class.new.extend(Rya::CoreExtensions::Math)
+    MATH   = Class.new.extend(Rya::CoreExtensions::Math)
+    STRING = Class.new.extend(Rya::CoreExtensions::String)
   end
 end
 
