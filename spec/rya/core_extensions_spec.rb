@@ -1,3 +1,4 @@
+
 RSpec.describe Rya::CoreExtensions do
 
   describe Rya::CoreExtensions::Array do
@@ -78,6 +79,75 @@ RSpec.describe Rya::CoreExtensions do
 
   describe Rya::CoreExtensions::Process do
     let(:klass) { Class.new { extend Rya::CoreExtensions::Process } }
+
+    describe "run_until_success" do
+      let(:fail_sometimes) { File.join __dir__, "..", "test_programs", "fail_sometimes.rb" }
+
+      it "runs a program until it's successful" do
+        tries = 2
+        pass_chance = 1
+        cmd = "#{fail_sometimes} #{pass_chance}"
+
+        klass.run_until_success tries do
+          klass.run_it cmd
+        end
+      end
+
+      it "raises an error if the program doesn't complete in alloted tries" do
+        tries = 2
+        pass_chance = 0
+        cmd = "#{fail_sometimes} #{pass_chance}"
+
+        error = Rya::MaxAttemptsExceededError
+
+        expect do
+          klass.run_until_success tries do
+            klass.run_it cmd
+          end
+        end.to raise_error error
+      end
+
+      it "raises an error if the block doesn't return a value that responds to exitstatus" do
+        error = Rya::Error
+
+        expect do
+          klass.run_until_success 10 do
+            klass.run_it "echo 'hi'"
+
+            puts "this will return nil"
+          end
+        end.to raise_error error
+      end
+    end
+
+    describe "#run_it" do
+      it "runs command and returns a Process::Status object" do
+        proc_status = klass.run_it "echo 'hi'"
+
+        expect(proc_status).to be_a Process::Status
+      end
+
+      it "gives a proc status with good exitstatus on good command" do
+        proc_status = klass.run_it "echo 'hi'"
+
+        expect(proc_status.exitstatus).to be_zero
+      end
+
+      it "writes the stdout of the command" do
+        expect { klass.run_it "echo 'hi'" }.to output("hi\n").to_stdout
+      end
+
+      # it "writes the stderr of the command" do
+      #   prog = %q{ruby -e 'STDERR.puts "hi"'}
+      #   expect { klass.run_it prog }.to output("hi\n").to_stdout
+      # end
+
+      it "gives proc status with bad exitstatus on failing command" do
+        proc_status = klass.run_it "rya___arstoien"
+
+        expect(proc_status.exitstatus).not_to be_zero
+      end
+    end
 
     describe "#run_it!" do
       it "raises error with bad command" do

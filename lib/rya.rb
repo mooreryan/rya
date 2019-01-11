@@ -7,6 +7,13 @@ require "rya/version"
 require "rya/core_extensions"
 
 module Rya
+  # Provide errors for the Rya class.
+  class Error < StandardError
+  end
+
+  class MaxAttemptsExceededError < Error
+  end
+
   # If you want to use AbortIf from this module, you can use it as Rya::AbortIf
   module AbortIf
     # To include the methods

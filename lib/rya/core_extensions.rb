@@ -109,6 +109,60 @@ module Rya
     module Process
       include CoreExtensions::Time
 
+      # I run your program until it succeeds or I fail too many times.
+      #
+      # @example I'll keep retrying your command line program until it succeeds.
+      #   klass = Class.new { extend Rya::CoreExtensions::Process }
+      #   max_attempts = 10
+      #
+      #   tries = klass.run_until_success max_attempts do
+      #     # This command returns a Process::Status object!
+      #     klass.run_it "echo 'hi'"
+      #   end
+      #
+      #   tries == 1 #=> true
+      #
+      # @example I'll raise an error if the program doesn't succeed after max_attempts tries.
+      #   klass = Class.new { extend Rya::CoreExtensions::Process }
+      #   max_attempts = 10
+      #
+      #   begin
+      #     klass.run_until_success max_attempts do
+      #       # This command returns a Process::Status object!
+      #       klass.run_it "ls 'file_that_doesnt_exist'"
+      #     end
+      #   rescue Rya::MaxAttemptsExceededError => err
+      #     STDERR.puts "The command didn't succeed after #{max_attempts} tries!"
+      #   end
+      #
+      # @param max_attempts [Integer] max attempts before I fail
+      #
+      # @yield The block specifies the command you want to run.  Make sure that it returns something that responds to exitstatus!
+      #
+      # @return [Integer] the number of attempts before successful completion
+      #
+      # @raise [Rya::Error] if the block does not return an object that responds to exitstatus (e.g., Prosses::Status)
+      # @raise [Rya::MaxAttemptsExceededError] if the program fails more than max_attempts times
+      #
+      def run_until_success max_attempts, &block
+        max_attempts.times do |attempt_index|
+          proc_status = yield block
+
+          unless proc_status.respond_to? :exitstatus
+            raise Rya::Error, "The block did not return an object that responds to exitstatus"
+          end
+
+          puts "proc_status in run_until_success fn: #{proc_status.inspect}"
+
+          if proc_status.exitstatus.zero?
+            return attempt_index + 1
+          end
+        end
+
+        raise Rya::MaxAttemptsExceededError, "max_attempts exceeded"
+      end
+
+
       # Runs a command and outputs stdout and stderr
       def run_it *a, &b
         exit_status, stdout, stderr = systemu *a, &b
