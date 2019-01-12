@@ -152,8 +152,6 @@ module Rya
             raise Rya::Error, "The block did not return an object that responds to exitstatus"
           end
 
-          puts "proc_status in run_until_success fn: #{proc_status.inspect}"
-
           if proc_status.exitstatus.zero?
             return attempt_index + 1
           end
