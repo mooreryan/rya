@@ -19,6 +19,35 @@ module Rya
       end
     end
 
+    module File
+      # Check if a string specifies an executable command on the PATH.
+      #
+      # @param cmd The name of a command to check.
+      #
+      # @return nil if the cmd is not on the PATH and executable
+      # @return [String] /path/to/cmd if the cmd is on the PATH and executable
+      #
+      # @example
+      #   File.extend Rya::CoreExtensions::File
+      #   File.command? "ls" #=> /bin/ls
+      #   File.command? "arstoien" #=> nil
+      #
+      # @note See https://stackoverflow.com/questions/2108727.
+      def command? cmd
+        exts = ENV["PATHEXT"] ? ENV["PATHEXT"].split(";") : [""]
+
+        ENV["PATH"].split(Object::File::PATH_SEPARATOR).each do |path|
+          exts.each do |ext|
+            exe = Object::File.join path, "#{cmd}#{ext}"
+
+            return exe if Object::File.executable?(exe) && !Object::File.directory?(exe)
+          end
+        end
+
+        nil
+      end
+    end
+
     module Math
       def scale val, old_min, old_max, new_min, new_max
         # This can happen if you use the mean across non-zero samples.

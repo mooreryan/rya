@@ -1,4 +1,3 @@
-
 RSpec.describe Rya::CoreExtensions do
 
   describe Rya::CoreExtensions::Array do
@@ -27,6 +26,20 @@ RSpec.describe Rya::CoreExtensions do
         actual = ary.scale new_min, new_max
 
         expect(actual).to eq expected
+      end
+    end
+  end
+
+  describe Rya::CoreExtensions::File do
+    let(:klass) { Class.new { extend Rya::CoreExtensions::File }}
+
+    describe "#command?" do
+      it "is falsey if arg is not a executable command" do
+        expect(klass.command? "asrotienaorsitenaoi").to be_falsey
+      end
+
+      it "returns full path of command if it is a command on the path" do
+        expect(klass.command? "ls").to match "ls"
       end
     end
   end
