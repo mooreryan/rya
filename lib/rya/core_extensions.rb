@@ -217,29 +217,39 @@ module Rya
 
       # Run a command and time it as well!
       #
+      # @param title Give your command a snappy title to log!
+      # @param cmd The actual command you want to run
+      # @param logger Something that responds to #info for printing.  If nil, just print to STDERR.
+      # @param run If true, actually run the command, if false, then don't.
+      #
+      # @note The 'run' keyword argument is nice if you have some big pipeline and you need to temporarily prevent sections of the code from running.
+      #
       # @example
       #
       #   Process.extend Rya::CoreExtensions::Process
-      #   Time.extend Rya::CoreExtensions::Time
       #
       #   Process.run_and_time_it! "Saying hello",
       #                            %Q{echo "hello world"}
+      #
+      #   Process.run_and_time_it! "This will not run",
+      #                            "echo 'hey'",
+      #                            run: false
       #
       #   Process.run_and_time_it! "This will raise SystemExit",
       #                            "ls arstoeiarntoairnt"
       def run_and_time_it! title = "",
                            cmd = "",
                            logger = Rya::AbortIf::logger,
+                           run: true,
                            &b
 
-        Rya::AbortIf.logger.debug { "Running: #{cmd}" }
+        time_it title, logger, run: run do
+          Rya::AbortIf.logger.debug { "Running: #{cmd}" }
 
-        time_it title, logger do
           run_it! cmd, &b
         end
       end
     end
-
   end
 end
 

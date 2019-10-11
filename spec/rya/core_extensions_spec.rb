@@ -174,23 +174,56 @@ RSpec.describe Rya::CoreExtensions do
 
     describe "#run_and_time_it!" do
       let(:title) { "Apple pie" }
+      let(:cmd) { "hi, arstoien"}
 
-      it "raises error with bad command" do
-        expect do
-          klass.run_and_time_it! title, "rya___arstoien"
-        end.to raise_error Rya::AbortIf::Exit
+      context "when 'run' is false" do
+        let(:proc) do
+          Proc.new do
+            klass.run_and_time_it! title, "echo '#{cmd}'", run: false
+          end
+        end
+
+        it "does not log the command" do
+          expect(&proc).not_to output(/Running: echo/).to_stderr_from_any_process
+        end
+
+        it "does not log the title" do
+          expect(&proc).not_to output(/#{title} finished in/).to_stderr_from_any_process
+        end
+
+        it "does not run the command" do
+          expect(&proc).not_to output(/#{cmd}/).to_stdout_from_any_process
+        end
       end
 
-      it "logs the command being run" do
-        expect do
-          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Running: echo/).to_stderr_from_any_process
-      end
+      context "when 'run' is true" do
+        context "with a bad command" do
+          it "raises error with bad command" do
+            expect do
+              klass.run_and_time_it! title, "rya___arstoien"
+            end.to raise_error Rya::AbortIf::Exit
+          end
+        end
 
-      it "also logs the title" do
-        expect do
-          klass.run_and_time_it! title, "echo 'hi' > /dev/null"
-        end.to output(/Apple pie finished in/).to_stderr_from_any_process
+        context "with a good command" do
+          let(:proc) do
+            Proc.new do
+              klass.run_and_time_it! title, "echo '#{cmd}'", run: true
+            end
+          end
+
+          it "runs the command" do
+            expect(&proc).to output(/#{cmd}/).to_stdout_from_any_process
+          end
+
+          it "logs the command being run" do
+            expect(&proc).to output(/Running: echo/).to_stderr_from_any_process
+          end
+
+          it "also logs the title" do
+            expect(&proc).to output(/Apple pie finished in/).to_stderr_from_any_process
+          end
+        end
       end
     end
   end
