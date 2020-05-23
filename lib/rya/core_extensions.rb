@@ -22,18 +22,21 @@ module Rya
     module File
       # Check if a string specifies an executable command on the PATH.
       #
-      # @param cmd The name of a command to check.
+      # @param cmd The name of a command to check, or a path to an actual executable binary.
       #
-      # @return nil if the cmd is not on the PATH and executable
-      # @return [String] /path/to/cmd if the cmd is on the PATH and executable
+      # @return nil if the cmd is not executable or it is not on the PATH.
+      # @return [String] /path/to/cmd if the cmd is executable or is on the PATH.
       #
       # @example
       #   File.extend Rya::CoreExtensions::File
-      #   File.command? "ls" #=> /bin/ls
+      #   File.command? "ls" #=> "/bin/ls"
       #   File.command? "arstoien" #=> nil
+      #   File.command? "/bin/ls" #=> "/bin/ls"
       #
       # @note See https://stackoverflow.com/questions/2108727.
       def command? cmd
+        return cmd if Object::File.executable? cmd
+
         exts = ENV["PATHEXT"] ? ENV["PATHEXT"].split(";") : [""]
 
         ENV["PATH"].split(Object::File::PATH_SEPARATOR).each do |path|
@@ -260,4 +263,3 @@ module Rya
     STRING = Class.new.extend(Rya::CoreExtensions::String)
   end
 end
-

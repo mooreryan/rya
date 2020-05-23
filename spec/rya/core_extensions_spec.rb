@@ -42,6 +42,16 @@ RSpec.describe Rya::CoreExtensions do
         expect(klass.command? "ls").to match "ls"
       end
     end
+
+    context "when given a full path" do
+      it "is falsey if path is not an executable command" do
+        expect(klass.command? "/bin/arstoien").to be_falsey
+      end
+
+      it "checks if that path is an executable file" do
+        expect(klass.command? "/bin/ls").to eq "/bin/ls"
+      end
+    end
   end
 
   describe Rya::CoreExtensions::Math do
